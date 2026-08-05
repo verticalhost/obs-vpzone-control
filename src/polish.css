@@ -1,0 +1,85 @@
+/* Corrections de fidélité après comparaison avec VPZONE et le concept Stitch. */
+:root {
+  --coral: #f9376b;
+  --surface: #131315;
+  --surface-2: #1c1b1d;
+  --line: rgba(255, 255, 255, 0.08);
+  --muted: #ab888c;
+  color: #e5e1e4;
+  background: #0e0e10;
+}
+
+body,
+.app,
+.top,
+.editor {
+  background: #0e0e10;
+}
+
+.brand b { color: #f9376b; }
+.avatar { border-color: #f9376b55; }
+.avatar.fallback { color: #fbb1d6; }
+.live { color: #fff; background: #f9376b; }
+.tabs button:last-child.active { color: #fbb1d6; border-bottom-color: #f9376b; background: #f9376b14; }
+.tabs em,
+.primary,
+.composer button,
+.alert-actions button.accent { background: #f9376b; }
+.field small,
+.alerts h2 span,
+.alert-settings label b { color: #fbb1d6; }
+.editor input:focus,
+.composer input:focus { border-color: #f9376b; box-shadow: 0 0 0 2px #f9376b20; }
+.message.system { border-left-color: #f9376b; background: #f9376b12; color: #fbb1d6; }
+.alert-row { border-left-color: #f9376b; }
+.event-avatar,
+.alert-row strong,
+.overlay-alert h1,
+.overlay-avatar { color: #f9376b; }
+.alert-types input:checked + i { background: #f9376b55; }
+.alert-types input:checked + i::after { background: #fbb1d6; }
+.overlay-orbit { border-color: #f9376b; box-shadow: 0 0 0 7px #f9376b1a, 0 0 40px #f9376b55; }
+
+/* Le formulaire suit la pile verticale du concept Stitch. */
+.editor { grid-template-columns: 1fr; }
+.editor label,
+.editor label:first-child,
+.editor .primary,
+.editor .notice { grid-column: 1; }
+
+/* Flex est stable même lorsque pinned/reply sont absents. */
+.chat {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-meta,
+.pinned,
+.reply,
+.composer { flex: 0 0 auto; }
+
+.messages {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.composer {
+  min-height: 46px;
+  align-items: center;
+}
+
+.composer input,
+.composer button {
+  height: 36px;
+}
+
+.composer button {
+  align-self: center;
+}
+
+@media (max-height: 720px) {
+  .editor { grid-template-columns: minmax(0, 1fr) minmax(120px, 0.75fr); }
+  .editor label:first-child { grid-column: 1 / -1; }
+  .editor label:not(:first-child) { grid-column: 1; }
+  .editor .primary { grid-column: 2; }
+}
