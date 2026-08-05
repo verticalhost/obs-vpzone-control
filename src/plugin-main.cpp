@@ -62,6 +62,7 @@ void start_service()
 		return;
 	}
 	CloseHandle(service_process.hThread);
+	obs_log(LOG_INFO, "VPZONE service started");
 }
 
 void stop_service()
@@ -82,6 +83,7 @@ void create_dock()
 {
 	if (dock_widget)
 		return;
+	obs_log(LOG_INFO, "Creating native VPZONE Control dock");
 
 	start_service();
 	dock_widget = new QWidget();
@@ -122,7 +124,8 @@ bool obs_module_load(void)
 {
 	obs_frontend_add_event_callback(frontend_event, nullptr);
 	obs_log(LOG_INFO, "VPZONE Control native plugin loaded (version %s)", PLUGIN_VERSION);
-	QTimer::singleShot(1000, [] { create_dock(); });
+	auto *main_window = static_cast<QWidget *>(obs_frontend_get_main_window());
+	QTimer::singleShot(1000, main_window, [] { create_dock(); });
 	return true;
 }
 
