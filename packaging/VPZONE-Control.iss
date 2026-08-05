@@ -1,5 +1,5 @@
 #define AppName "VPZONE Control"
-#define AppVersion "1.1.0"
+#define AppVersion "1.1.1"
 #define AppPublisher "Solutions Techno-Redac Inc."
 #define AppURL "https://github.com/verticalhost/obs-vpzone-control"
 
@@ -16,7 +16,8 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
-CloseApplications=yes
+CloseApplications=force
+RestartApplications=no
 CloseApplicationsFilter=obs64.exe
 OutputDir=..\release
 OutputBaseFilename=VPZONE-Control-Setup-v{#AppVersion}-Windows-x64
@@ -50,7 +51,7 @@ const
 
 function OBSConfigPath: String;
 begin
-  Result := ExpandConstant('{userappdata}\obs-studio\global.ini');
+  Result := ExpandConstant('{userappdata}\obs-studio\user.ini');
 end;
 
 function GetOBSPath(Param: String): String;

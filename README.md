@@ -32,7 +32,7 @@ Install Node.js 20 or newer, then run `npm install`.
 - `npm run build:windows` creates the Windows x64 executable and ZIP archive.
 - `npm run test:windows` launches the packaged executable on an isolated port and verifies both the API and embedded interface.
 
-OAuth configuration and tokens are stored locally. Source runs use `data/config.json`; packaged builds use `%APPDATA%\VPZONE Control`. Both locations must remain private.
+OAuth configuration and tokens are stored locally. Source runs use `data/config.json`; packaged builds use `%APPDATA%\VPZONE Control`. Both locations must remain private. The Windows installer registers the OBS dock in the current OBS user configuration (`user.ini` on OBS 32+).
 
 ## Contributing
 
