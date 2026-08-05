@@ -1,19 +1,19 @@
-# Contribuer à VPZONE Control
+# Contributing to VPZONE Control
 
-Merci de contribuer au projet.
+Thank you for contributing.
 
-## Proposer une modification
+## Proposing a change
 
-1. Créez un fork du dépôt.
-2. Créez une branche courte et descriptive depuis `main`.
-3. Installez les dépendances avec `npm install`.
-4. Développez et vérifiez la modification avec `npm run check` et `npm run build`.
-5. Ouvrez une pull request en expliquant le problème, la solution et la manière de la tester.
+1. Fork the repository.
+2. Create a short, descriptive branch from `main`.
+3. Install dependencies with `npm install`.
+4. Make your change and run `npm run check` and `npm run build`.
+5. Open a pull request that explains the problem, the solution, and how it was tested.
 
-Pour une modification visuelle, ajoutez idéalement une capture avant/après. Pour une nouvelle fonctionnalité importante, ouvrez d’abord une issue afin de confirmer son intégration au produit.
+For visual changes, include before-and-after screenshots when possible. For substantial new features, open an issue first to discuss how they fit the product.
 
-## Sécurité et données locales
+## Security and local data
 
-Ne commitez jamais de jeton OAuth, de secret client, de fichier `.env`, ni le dossier `data/`. Utilisez uniquement un compte de test pour les essais qui pourraient publier un message ou modifier une chaîne.
+Never commit OAuth tokens, client secrets, `.env` files, or the `data/` directory. Use a test account for changes that may send chat messages or update a live channel.
 
-Si vous découvrez une vulnérabilité, ne créez pas d’issue publique contenant des détails exploitables. Contactez plutôt le propriétaire du dépôt en privé depuis son profil GitHub.
+If you discover a vulnerability, do not open a public issue containing exploitable details. Contact the repository owner privately through their GitHub profile.

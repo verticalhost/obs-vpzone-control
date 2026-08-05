@@ -2,7 +2,7 @@ import express from 'express'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import crypto from 'node:crypto'
-import { isSea } from 'node:sea'
+import { getAsset, isSea } from 'node:sea'
 
 const packaged = isSea()
 const root = packaged ? path.dirname(process.execPath) : path.resolve(process.env.VPZONE_APP_ROOT || process.cwd())
@@ -123,6 +123,19 @@ app.patch('/api/channel', async (req, res, next) => {
   } catch (error) { next(error) }
 })
 app.use((error, _req, res, _next) => res.status(error.status || 500).json({ error: error.message, details: error.payload }))
-app.use(express.static(path.join(root, 'dist')))
-app.get('/{*path}', (_req, res) => res.sendFile(path.join(root, 'dist', 'index.html')))
+if (packaged) {
+  const contentTypes = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon' }
+  app.get('/{*path}', (req, res) => {
+    const requested = req.path.replace(/^\//, '')
+    const asset = requested && requested.includes('.') ? requested : 'index.html'
+    try {
+      res.type(contentTypes[path.extname(asset)] || 'application/octet-stream').send(Buffer.from(getAsset(asset)))
+    } catch {
+      res.type('text/html; charset=utf-8').send(Buffer.from(getAsset('index.html')))
+    }
+  })
+} else {
+  app.use(express.static(path.join(root, 'dist')))
+  app.get('/{*path}', (_req, res) => res.sendFile(path.join(root, 'dist', 'index.html')))
+}
 app.listen(port, '127.0.0.1', () => console.log(`VPZONE Control: http://127.0.0.1:${port}`))

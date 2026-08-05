@@ -1,35 +1,35 @@
-# Installation dans OBS
+# Installing VPZONE Control in OBS
 
-VPZONE Control est une application web locale affichée dans un dock navigateur OBS. Ce n’est pas une extension Chrome. La version actuelle n’est pas encore distribuée sous forme de fichier `.exe`.
+VPZONE Control is a local web application displayed inside an OBS browser dock. It is not a Chrome extension.
 
-## Installer la version source
+## Windows portable build
 
-1. Installez Node.js 20 ou une version plus récente.
-2. Téléchargez ou clonez le dépôt.
-3. Ouvrez PowerShell dans le dossier du projet.
-4. Exécutez `npm install`.
-5. Exécutez `npm run build`.
-6. Démarrez VPZONE Control avec `npm start`, ou avec `start-vpzone-control.ps1` sous Windows.
-7. Dans OBS, ouvrez **Docks → Docks navigateur personnalisés**.
-8. Ajoutez un dock nommé `VPZONE Control` avec l’URL `http://127.0.0.1:4876`.
-9. Cliquez sur **Se connecter avec VPZONE** et autorisez les permissions demandées.
+In the GitHub release **Assets** section, download `VPZONE-Control.exe` or the archive named `VPZONE-Control-v…-Windows-x64.zip`. Do not download GitHub's automatic **Source code** archives.
 
-Le navigateur ouvre la page VPZONE officielle. Le mot de passe VPZONE n’est jamais saisi dans VPZONE Control. Après l’autorisation, VPZONE renvoie automatiquement l’application vers `http://localhost:4876/api/auth/callback`.
+Run `VPZONE-Control.exe` and leave its console window open while using OBS. The executable contains the server, interface, and Node runtime. Chrome, Electron, and a separate Node.js installation are not required.
 
-## Jeton OAuth
+1. Open **Docks → Custom Browser Docks** in OBS.
+2. Add a dock named `VPZONE Control`.
+3. Enter `http://127.0.0.1:4876` as its URL.
+4. Click **Connect with VPZONE** and approve the requested permissions.
 
-L’utilisateur final ne doit pas créer, copier ou coller de jeton. Le bouton de connexion utilise OAuth 2.1 avec PKCE pour obtenir un jeton temporaire, puis le renouveler automatiquement.
+VPZONE opens its official sign-in page. The VPZONE password is never entered in VPZONE Control. After approval, VPZONE redirects to `http://localhost:4876/api/auth/callback`.
 
-La session est enregistrée uniquement dans `data/config.json` sur l’ordinateur de l’utilisateur. Ce fichier contient des données sensibles : ne le partagez pas et ne l’ajoutez jamais à Git.
+## OAuth tokens
 
-## Alertes dans une scène
+End users must not create, copy, or paste tokens. The sign-in button uses OAuth 2.1 with PKCE to obtain a temporary access token and rotate the refresh token automatically.
 
-Ajoutez une **Source navigateur** transparente avec l’URL `http://127.0.0.1:4876/?overlay=alerts`.
+The packaged build stores its session in `%APPDATA%\VPZONE Control`. Treat this directory as sensitive and never share it.
 
-## Version Windows portable
+## Alerts in an OBS scene
 
-La release GitHub fournit une archive Windows x64. Extrayez-la, lancez `VPZONE-Control.exe` et laissez la fenêtre ouverte pendant l’utilisation d’OBS. Aucun Node.js, Chrome ou autre runtime n’est requis.
+Add a transparent **Browser Source** using `http://127.0.0.1:4876/?overlay=alerts`.
 
-Cette distribution utilise Node SEA plutôt qu’Electron : elle n’embarque aucun deuxième navigateur et réduit ainsi fortement la mémoire et le processeur utilisés. L’interface est rendue uniquement par le dock navigateur déjà intégré à OBS.
+## Source installation
 
-La session OAuth de la version portable est enregistrée dans `%APPDATA%\VPZONE Control`, jamais à côté de l’exécutable.
+1. Install Node.js 20 or newer.
+2. Clone or download the repository.
+3. Run `npm install` and `npm run build`.
+4. Start the service with `npm start`.
+
+The source build stores its local session in `data/config.json`, which is excluded from Git.

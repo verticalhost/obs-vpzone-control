@@ -1,37 +1,37 @@
-# Configuration OAuth VPZONE
+# VPZONE OAuth configuration
 
-## Pour les utilisateurs
+## End users
 
-Il n’y a aucun jeton à générer manuellement. Cliquez sur **Se connecter avec VPZONE**, connectez-vous sur VPZONE et acceptez les permissions. L’application effectue ensuite l’échange du code OAuth et le renouvellement des jetons en arrière-plan.
+No token is generated manually. Click **Connect with VPZONE**, sign in on VPZONE, and approve access. VPZONE Control exchanges the authorization code and refreshes tokens in the background.
 
-## Pour les mainteneurs et les forks
+## Maintainers and forks
 
-Une seule application OAuth publique peut servir tous les utilisateurs d’une version distribuée de VPZONE Control. Chaque utilisateur se connecte avec son propre compte, mais utilise le même identifiant public d’application.
+One public OAuth application can serve every user of a distributed VPZONE Control build. Each user signs in with their own account while using the same public application identifier.
 
-Dans le portail développeur VPZONE, créez une application OAuth avec les paramètres suivants :
+Create an OAuth application in the VPZONE developer portal with these settings:
 
-- Type de client : application publique, sans secret client.
-- Flux : Authorization Code avec PKCE S256.
-- URL de redirection exacte : `http://localhost:4876/api/auth/callback`.
-- Permissions : `profile:read channel:write chat:read chat:write`.
+- Client type: public application without a client secret.
+- Flow: Authorization Code with PKCE S256.
+- Exact redirect URL: `http://localhost:4876/api/auth/callback`.
+- Scopes: `profile:read channel:write chat:read chat:write`.
 
-Copiez uniquement le **Client ID** public. Pour utiliser un autre Client ID sans modifier le code, démarrez l’application avec la variable d’environnement `VPZONE_CLIENT_ID` :
+Copy only the public **Client ID**. To use another Client ID without modifying source code, set `VPZONE_CLIENT_ID` before starting the application:
 
 ```powershell
-$env:VPZONE_CLIENT_ID = "votre-client-id-public"
+$env:VPZONE_CLIENT_ID = "your-public-client-id"
 npm start
 ```
 
-Le projet ne demande pas de `client_secret`. Un secret ne doit jamais être intégré au JavaScript, au dépôt GitHub ou à un futur installateur public.
+The project does not require a `client_secret`. Never include a secret in JavaScript, GitHub, or a public Windows executable.
 
-Si le port est modifié avec la variable `PORT`, l’URL de redirection enregistrée dans le portail VPZONE doit utiliser exactement le même port.
+If the `PORT` environment variable changes the local port, the redirect URL registered with VPZONE must use the exact same port.
 
-## Cycle de connexion
+## Sign-in lifecycle
 
-1. Le serveur local génère un `state`, un vérificateur PKCE et son challenge S256.
-2. Le navigateur redirige l’utilisateur vers la page d’autorisation VPZONE.
-3. VPZONE renvoie un code temporaire au callback local.
-4. Le serveur échange ce code avec le vérificateur PKCE contre un access token et un refresh token.
-5. Le refresh token est renouvelé automatiquement lorsque nécessaire.
+1. The local server generates a state value, PKCE verifier, and S256 challenge.
+2. The browser redirects to VPZONE's authorization page.
+3. VPZONE returns a temporary code to the local callback.
+4. The server exchanges the code and verifier for an access token and refresh token.
+5. Refresh-token rotation occurs automatically when needed.
 
-Les jetons sont conservés dans `data/config.json`, qui est ignoré par Git. Pour révoquer une session locale, déconnectez le compte depuis l’interface; si nécessaire pendant le développement, arrêtez l’application et supprimez uniquement ce fichier local.
+Tokens are stored in `data/config.json` for source builds and `%APPDATA%\VPZONE Control` for packaged builds. Both locations are excluded from Git and must remain private.

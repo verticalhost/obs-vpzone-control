@@ -1,41 +1,45 @@
-# VPZONE Control pour OBS
+# VPZONE Control for OBS
 
-Dock OBS local pour modifier le titre et la catégorie d'une chaîne VPZONE, puis lire et écrire dans le chat en temps réel.
+A lightweight local OBS browser dock for updating a VPZONE channel title and category, reading and sending chat messages, and displaying real-time alerts.
 
 ## Installation
 
-Téléchargez la version Windows depuis les [Releases GitHub](https://github.com/verticalhost/obs-vpzone-control/releases), extrayez l’archive et lancez `VPZONE-Control.exe`. Aucun Node.js ni Chrome n’est nécessaire. Consultez aussi le [guide d’installation](docs/INSTALLATION.md).
+Download the Windows build from [GitHub Releases](https://github.com/verticalhost/obs-vpzone-control/releases), extract the archive, and run `VPZONE-Control.exe`. Node.js and Chrome are not required. See the complete [installation guide](docs/INSTALLATION.md).
 
-Dans OBS : **Docks → Docks navigateur personnalisés**, nommez-le `VPZONE Control` et utilisez `http://127.0.0.1:4876`.
+In OBS, open **Docks → Custom Browser Docks**, name the dock `VPZONE Control`, and enter `http://127.0.0.1:4876`.
 
-Dans le dock, cliquez **Se connecter avec VPZONE**, puis approuvez l’autorisation. Le slug de la chaîne est récupéré automatiquement depuis le compte connecté.
+Click **Connect with VPZONE** in the dock and approve access. The channel slug is discovered automatically from the signed-in account.
 
-Le flux utilise OAuth 2.1 Authorization Code avec PKCE S256. Les jetons sont renouvelés automatiquement avec rotation du refresh token.
+The application uses OAuth 2.1 Authorization Code with PKCE S256 and automatic refresh-token rotation. End users never generate, copy, or paste a token. Maintainers using their own OAuth application can follow the [OAuth configuration guide](docs/OAUTH.md).
 
-L’utilisateur ne génère et ne copie aucun jeton manuellement. Les mainteneurs et développeurs qui utilisent leur propre application OAuth trouveront la configuration complète dans [docs/OAUTH.md](docs/OAUTH.md).
+The Windows build uses Node SEA instead of Electron, so it does not bundle a second browser. The v1.0.1 startup test used approximately 47 MB of RAM and 0.14 seconds of CPU time; idle usage remains minimal.
 
-La version Windows utilise Node SEA plutôt qu’Electron afin de ne pas embarquer un second navigateur. Le test automatisé de la version 1.0.0 mesure environ 47 Mo de RAM et 0,09 seconde CPU au démarrage; la charge au repos demeure minimale.
+## OBS alerts
 
-## Alertes OBS
+The dock receives donations/Pixels, subscriptions, gifts, raids, follows, clips, and channel-point rewards in real time. The **Alerts** tab controls enabled event types, volume, duration, and test alerts.
 
-Le dock reçoit en temps réel les dons/Pixels, abonnements, cadeaux, raids, follows, clips et récompenses de points. L’onglet **Alertes** permet de choisir les types actifs, le volume, la durée et de lancer un test.
-
-Ajoutez cette URL comme **Source navigateur** transparente dans une scène OBS :
+Add this transparent URL as an OBS **Browser Source**:
 
 `http://127.0.0.1:4876/?overlay=alerts`
 
-## Développement
+## Development
 
-`npm run dev` démarre Vite sur `http://127.0.0.1:5173` et le service API local sur le port 4876.
+Install Node.js 20 or newer, then run `npm install`.
 
-La configuration et la session OAuth sont enregistrées dans `data/config.json`, uniquement sur la machine locale. Ce dossier est exclu de Git.
+- `npm run dev` starts Vite on `http://127.0.0.1:5173` and the local API service on port 4876.
+- `npm run check` runs ESLint and TypeScript checks.
+- `npm run build` builds the frontend.
+- `npm run build:windows` creates the Windows x64 executable and ZIP archive.
+- `npm run test:windows` launches the packaged executable on an isolated port and verifies both the API and embedded interface.
 
-## Contribuer
+OAuth configuration and tokens are stored locally. Source runs use `data/config.json`; packaged builds use `%APPDATA%\VPZONE Control`. Both locations must remain private.
 
-Le projet est public et les contributions sont bienvenues. Consultez [CONTRIBUTING.md](CONTRIBUTING.md) pour proposer une correction ou une fonctionnalité avec une pull request.
+## Contributing
 
-Ne publiez jamais le contenu de `data/`, un jeton OAuth, un secret client ou un fichier `.env`. L’identifiant du client OAuth public présent dans l’application n’est pas un secret.
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
-## Licence
+Never publish `data/`, OAuth tokens, client secrets, or `.env` files. The public OAuth Client ID included in this application is not a secret.
 
-Distribué sous licence MIT. Consultez [LICENSE](LICENSE).
+## License
+
+Distributed under the [MIT License](LICENSE).
