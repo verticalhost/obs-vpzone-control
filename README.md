@@ -4,7 +4,7 @@ Dock OBS local pour modifier le titre et la catégorie d'une chaîne VPZONE, pui
 
 ## Installation
 
-Consultez le [guide d’installation](docs/INSTALLATION.md). Pour le moment, la version source nécessite Node.js 20 ou plus récent; un installateur Windows pourra ensuite automatiser ces étapes.
+Téléchargez la version Windows depuis les [Releases GitHub](https://github.com/verticalhost/obs-vpzone-control/releases), extrayez l’archive et lancez `VPZONE-Control.exe`. Aucun Node.js ni Chrome n’est nécessaire. Consultez aussi le [guide d’installation](docs/INSTALLATION.md).
 
 Dans OBS : **Docks → Docks navigateur personnalisés**, nommez-le `VPZONE Control` et utilisez `http://127.0.0.1:4876`.
 
@@ -13,6 +13,8 @@ Dans le dock, cliquez **Se connecter avec VPZONE**, puis approuvez l’autorisat
 Le flux utilise OAuth 2.1 Authorization Code avec PKCE S256. Les jetons sont renouvelés automatiquement avec rotation du refresh token.
 
 L’utilisateur ne génère et ne copie aucun jeton manuellement. Les mainteneurs et développeurs qui utilisent leur propre application OAuth trouveront la configuration complète dans [docs/OAUTH.md](docs/OAUTH.md).
+
+La version Windows utilise Node SEA plutôt qu’Electron afin de ne pas embarquer un second navigateur. Le test automatisé de la version 1.0.0 mesure environ 47 Mo de RAM et 0,09 seconde CPU au démarrage; la charge au repos demeure minimale.
 
 ## Alertes OBS
 

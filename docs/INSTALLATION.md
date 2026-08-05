@@ -26,6 +26,10 @@ La session est enregistrée uniquement dans `data/config.json` sur l’ordinateu
 
 Ajoutez une **Source navigateur** transparente avec l’URL `http://127.0.0.1:4876/?overlay=alerts`.
 
-## Distribution Windows prévue
+## Version Windows portable
 
-Un futur installateur Windows devra embarquer le serveur local et les fichiers construits, créer un raccourci et démarrer l’application sur `127.0.0.1:4876`. OBS continuera d’utiliser le même dock navigateur. Une extension Chrome n’est pas nécessaire.
+La release GitHub fournit une archive Windows x64. Extrayez-la, lancez `VPZONE-Control.exe` et laissez la fenêtre ouverte pendant l’utilisation d’OBS. Aucun Node.js, Chrome ou autre runtime n’est requis.
+
+Cette distribution utilise Node SEA plutôt qu’Electron : elle n’embarque aucun deuxième navigateur et réduit ainsi fortement la mémoire et le processeur utilisés. L’interface est rendue uniquement par le dock navigateur déjà intégré à OBS.
+
+La session OAuth de la version portable est enregistrée dans `%APPDATA%\VPZONE Control`, jamais à côté de l’exécutable.

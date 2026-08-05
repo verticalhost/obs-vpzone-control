@@ -1,12 +1,14 @@
 import express from 'express'
 import fs from 'node:fs/promises'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
 import crypto from 'node:crypto'
+import { isSea } from 'node:sea'
 
-const here = path.dirname(fileURLToPath(import.meta.url))
-const root = path.resolve(here, '..')
-const dataDir = path.join(root, 'data')
+const packaged = isSea()
+const root = packaged ? path.dirname(process.execPath) : path.resolve(process.env.VPZONE_APP_ROOT || process.cwd())
+const dataDir = packaged
+  ? path.join(process.env.APPDATA || root, 'VPZONE Control')
+  : path.join(root, 'data')
 const configFile = path.join(dataDir, 'config.json')
 const port = Number(process.env.PORT || 4876)
 const VPZONE_API = 'https://vpzone.tv/api/v1'

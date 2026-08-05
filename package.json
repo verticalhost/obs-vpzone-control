@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "concurrently -k \"vite\" \"node --watch server/index.js\"",
     "build": "vite build",
+    "build:windows": "node scripts/build-windows.mjs",
+    "test:windows": "node scripts/test-windows.mjs",
     "start": "node server/index.js",
     "check": "eslint . && tsc --noEmit"
   },
@@ -20,10 +22,12 @@
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^4.7.0",
     "concurrently": "^9.2.0",
+    "esbuild": "^0.28.1",
     "eslint": "^9.32.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "postject": "^1.0.0-alpha.6",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "typescript": "^5.9.2",
