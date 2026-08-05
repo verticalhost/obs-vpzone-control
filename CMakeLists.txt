@@ -30,9 +30,9 @@ if(WIN32)
   set(VPZONE_SERVICE "${CMAKE_CURRENT_BINARY_DIR}/VPZONE-Control.exe")
   file(
     DOWNLOAD
-    "https://github.com/verticalhost/obs-vpzone-control/releases/download/v1.1.1/VPZONE-Control.exe"
+    "https://github.com/verticalhost/obs-vpzone-control/releases/download/service-v2.0.0-beta1/VPZONE-Control.exe"
     "${VPZONE_SERVICE}"
-    EXPECTED_HASH SHA256=e0de11f5ffd0ca0c9f305b9e55b5a6726d103e764a91d3734f87e9cac124cd68
+    EXPECTED_HASH SHA256=ea1f91f55ff03bdee13cbf9b9b3529627ba76a0800d1cc52af795effdb0d2049
     TLS_VERIFY ON
   )
   target_add_resource(${CMAKE_PROJECT_NAME} "${VPZONE_SERVICE}")
