@@ -121,6 +121,7 @@ bool obs_module_load(void)
 {
 	obs_frontend_add_event_callback(frontend_event, nullptr);
 	obs_log(LOG_INFO, "VPZONE Control native plugin loaded (version %s)", PLUGIN_VERSION);
+	create_dock();
 	return true;
 }
 

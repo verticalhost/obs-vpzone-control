@@ -11,4 +11,5 @@ Thumbs.db
 .idea/
 openapi.vpzone.json
 release/
+native-artifacts/
 .sea-build/
