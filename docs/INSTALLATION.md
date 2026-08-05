@@ -2,6 +2,17 @@
 
 VPZONE Control is a local web application displayed inside an OBS browser dock. It is not a Chrome extension.
 
+## Windows installer
+
+Download `VPZONE-Control-Setup-…-Windows-x64.exe` from the GitHub release **Assets** section. Close OBS, run the installer, and leave **Launch OBS Studio** selected. The installer:
+
+1. Installs the lightweight VPZONE Control service for the current Windows user.
+2. Registers `VPZONE Control` in OBS's Docks menu without removing existing browser docks.
+3. Starts the local service silently and configures it to start at Windows sign-in.
+4. Opens OBS when installation finishes.
+
+In OBS, select **Docks → VPZONE Control**. No URL needs to be entered manually.
+
 ## Windows portable build
 
 In the GitHub release **Assets** section, download `VPZONE-Control.exe` or the archive named `VPZONE-Control-v…-Windows-x64.zip`. Do not download GitHub's automatic **Source code** archives.

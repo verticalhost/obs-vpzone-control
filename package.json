@@ -1,12 +1,13 @@
 {
   "name": "obs-vpzone-control",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "concurrently -k \"vite\" \"node --watch server/index.js\"",
     "build": "vite build",
     "build:windows": "node scripts/build-windows.mjs",
+    "build:installer": "npm run build:windows && node scripts/build-installer.mjs",
     "test:windows": "node scripts/test-windows.mjs",
     "start": "node server/index.js",
     "check": "eslint . && tsc --noEmit"

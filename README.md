@@ -4,9 +4,9 @@ A lightweight local OBS browser dock for updating a VPZONE channel title and cat
 
 ## Installation
 
-Download the Windows build from [GitHub Releases](https://github.com/verticalhost/obs-vpzone-control/releases), extract the archive, and run `VPZONE-Control.exe`. Node.js and Chrome are not required. See the complete [installation guide](docs/INSTALLATION.md).
+Download `VPZONE-Control-Setup-…-Windows-x64.exe` from [GitHub Releases](https://github.com/verticalhost/obs-vpzone-control/releases) and run it while OBS is closed. The installer registers the dock, starts the lightweight local service, and can launch OBS. Node.js and Chrome are not required. See the complete [installation guide](docs/INSTALLATION.md).
 
-In OBS, open **Docks → Custom Browser Docks**, name the dock `VPZONE Control`, and enter `http://127.0.0.1:4876`.
+After installation, open OBS and select **Docks → VPZONE Control**. Manual dock creation is no longer required.
 
 Click **Connect with VPZONE** in the dock and approve access. The channel slug is discovered automatically from the signed-in account.
 

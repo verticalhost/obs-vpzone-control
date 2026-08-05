@@ -3,8 +3,8 @@ import path from 'node:path'
 import process from 'node:process'
 
 const root = path.resolve(import.meta.dirname, '..')
-const executable = path.join(root, 'release', 'VPZONE-Control-Windows-x64', 'VPZONE-Control.exe')
-const testPort = '14876'
+const executable = process.env.VPZONE_TEST_EXE || path.join(root, 'release', 'VPZONE-Control-Windows-x64', 'VPZONE-Control.exe')
+const testPort = process.env.VPZONE_TEST_PORT || '14876'
 const child = spawn(executable, [], { cwd: path.dirname(executable), windowsHide: true, stdio: 'ignore', env: { ...process.env, PORT: testPort } })
 
 try {

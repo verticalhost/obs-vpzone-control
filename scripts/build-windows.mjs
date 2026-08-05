@@ -5,12 +5,13 @@ import path from 'node:path'
 import process from 'node:process'
 
 const root = path.resolve(import.meta.dirname, '..')
+const packageInfo = JSON.parse(await fs.readFile(path.join(root, 'package.json'), 'utf8'))
 const work = path.join(root, '.sea-build')
 const output = path.join(root, 'release', 'VPZONE-Control-Windows-x64')
 const bundle = path.join(work, 'vpzone-control.cjs')
 const blob = path.join(work, 'vpzone-control.blob')
 const executable = path.join(output, 'VPZONE-Control.exe')
-const archive = path.join(root, 'release', 'VPZONE-Control-v1.0.1-Windows-x64.zip')
+const archive = path.join(root, 'release', `VPZONE-Control-v${packageInfo.version}-Windows-x64.zip`)
 
 await fs.rm(work, { recursive: true, force: true })
 await fs.rm(output, { recursive: true, force: true })
