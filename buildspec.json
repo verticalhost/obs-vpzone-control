@@ -38,7 +38,7 @@
   },
   "name": "obs-vpzone-control",
   "displayName": "VPZONE Control for OBS",
-  "version": "2.0.0-beta1",
+  "version": "2.0.0",
   "author": "Solutions Techno-Redac Inc.",
   "website": "https://github.com/verticalhost/obs-vpzone-control",
   "email": "support@solutionstechno-redac.ca"
