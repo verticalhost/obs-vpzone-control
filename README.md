@@ -42,4 +42,4 @@ Never publish `data/`, OAuth tokens, client secrets, or `.env` files. The public
 
 ## License
 
-Distributed under the [MIT License](LICENSE).
+Distributed under the [GNU General Public License v2.0 or later](LICENSE), matching the OBS plug-in ecosystem requirements.
