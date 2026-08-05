@@ -1,30 +1,19 @@
 # Installing VPZONE Control in OBS
 
-VPZONE Control is a local web application displayed inside an OBS browser dock. It is not a Chrome extension.
+VPZONE Control is a native OBS plugin with an embedded dock. It is not a Chrome extension and it does not use OBS's Custom Browser Docks configuration.
 
 ## Windows installer
 
-Download `VPZONE-Control-Setup-…-Windows-x64.exe` from the GitHub release **Assets** section. Close OBS, run the installer, and leave **Launch OBS Studio** selected. The installer:
+Download `VPZONE-Control-Setup-…-Windows-x64.exe` from the GitHub release **Assets** section. Close OBS, run the installer, approve the Windows administrator prompt, and leave **Launch OBS Studio** selected. The installer:
 
-1. Installs the lightweight VPZONE Control service for the current Windows user.
-2. Registers `VPZONE Control` in OBS's current user configuration and Docks menu without removing existing browser docks.
-3. Starts the local service silently and configures it to start at Windows sign-in.
+1. Installs `obs-vpzone-control.dll` in the standard OBS plugin directory.
+2. Installs the lightweight VPZONE Control service as plugin data.
+3. Removes only the obsolete VPZONE Control Custom Browser Dock created by versions 1.x.
 4. Opens OBS when installation finishes.
 
-In OBS, select **Docks → VPZONE Control**. No URL needs to be entered manually.
+The plugin starts its local service silently with OBS and stops it when OBS closes. In OBS, select **Docks → VPZONE Control**. No URL needs to be entered manually.
 
-## Windows portable build
-
-In the GitHub release **Assets** section, download `VPZONE-Control.exe` or the archive named `VPZONE-Control-v…-Windows-x64.zip`. Do not download GitHub's automatic **Source code** archives.
-
-Run `VPZONE-Control.exe` and leave its console window open while using OBS. The executable contains the server, interface, and Node runtime. Chrome, Electron, and a separate Node.js installation are not required.
-
-1. Open **Docks → Custom Browser Docks** in OBS.
-2. Add a dock named `VPZONE Control`.
-3. Enter `http://127.0.0.1:4876` as its URL.
-4. Click **Connect with VPZONE** and approve the requested permissions.
-
-VPZONE opens its official sign-in page. The VPZONE password is never entered in VPZONE Control. After approval, VPZONE redirects to `http://localhost:4876/api/auth/callback`.
+Click **Connect with VPZONE** and approve the requested permissions. VPZONE opens its official sign-in page; the VPZONE password is never entered in VPZONE Control. After approval, VPZONE redirects to `http://localhost:4876/api/auth/callback`.
 
 ## OAuth tokens
 
