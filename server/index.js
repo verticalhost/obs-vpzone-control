@@ -1,5 +1,6 @@
 import express from 'express'
 import fs from 'node:fs/promises'
+import { mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import crypto from 'node:crypto'
 import { getAsset, isSea } from 'node:sea'
@@ -29,9 +30,10 @@ async function writeConfig(config) {
   await fs.writeFile(configFile, JSON.stringify(config, null, 2), { mode: 0o600 })
 }
 
-async function writeRuntime() {
-  await fs.mkdir(dataDir, { recursive: true })
-  await fs.writeFile(runtimeFile, JSON.stringify({ port, localToken }, null, 2), { mode: 0o600 })
+/* Written synchronously: the plugin may read the token as soon as the port accepts. */
+function writeRuntime() {
+  mkdirSync(dataDir, { recursive: true })
+  writeFileSync(runtimeFile, JSON.stringify({ port, localToken }, null, 2), { mode: 0o600 })
 }
 
 function fail(status, code, message) { return Object.assign(new Error(message), { status, code }) }
@@ -177,5 +179,5 @@ if (packaged) {
   app.use(express.static(path.join(root, 'dist')))
   app.get('/{*path}', (_req, res) => res.sendFile(path.join(root, 'dist', 'index.html')))
 }
-await writeRuntime()
+writeRuntime()
 app.listen(port, '127.0.0.1', () => console.log(`VPZONE Control: http://127.0.0.1:${port}`))
