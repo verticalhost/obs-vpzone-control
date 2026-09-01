@@ -60,6 +60,26 @@ bool docks_requested = false;
 
 #ifdef _WIN32
 PROCESS_INFORMATION service_process{};
+HANDLE service_job = nullptr;
+
+/* Tying the service to a job object is what actually guarantees it dies with OBS.
+ * Terminating it from obs_module_unload only covers an orderly shutdown, and a crashed
+ * or force-killed OBS leaves the service holding the port, which then makes the next
+ * session's service lose the bind race. */
+HANDLE create_kill_on_close_job()
+{
+	HANDLE job = CreateJobObjectW(nullptr, nullptr);
+	if (!job)
+		return nullptr;
+
+	JOBOBJECT_EXTENDED_LIMIT_INFORMATION limits{};
+	limits.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+	if (!SetInformationJobObject(job, JobObjectExtendedLimitInformation, &limits, sizeof(limits))) {
+		CloseHandle(job);
+		return nullptr;
+	}
+	return job;
+}
 
 void start_service()
 {
@@ -78,26 +98,42 @@ void start_service()
 	std::vector<wchar_t> mutable_command(command.begin(), command.end());
 	mutable_command.push_back(L'\0');
 
+	if (!service_job)
+		service_job = create_kill_on_close_job();
+
 	STARTUPINFOW startup{};
 	startup.cb = sizeof(startup);
 	const std::wstring directory = QFileInfo(executable).absolutePath().toStdWString();
-	if (!CreateProcessW(nullptr, mutable_command.data(), nullptr, nullptr, FALSE, CREATE_NO_WINDOW, nullptr,
-			    directory.c_str(), &startup, &service_process)) {
+	/* Suspended so the job is in place before the service can outlive us. */
+	if (!CreateProcessW(nullptr, mutable_command.data(), nullptr, nullptr, FALSE,
+			    CREATE_NO_WINDOW | CREATE_SUSPENDED, nullptr, directory.c_str(), &startup,
+			    &service_process)) {
 		obs_log(LOG_ERROR, "Unable to start VPZONE service (Windows error %lu)", GetLastError());
 		return;
 	}
+
+	if (service_job && !AssignProcessToJobObject(service_job, service_process.hProcess))
+		obs_log(LOG_WARNING, "VPZONE service is not bound to OBS (Windows error %lu); it may outlive a crash",
+			GetLastError());
+
+	ResumeThread(service_process.hThread);
 	CloseHandle(service_process.hThread);
+	service_process.hThread = nullptr;
 	obs_log(LOG_INFO, "VPZONE service started");
 }
 
 void stop_service()
 {
-	if (!service_process.hProcess)
-		return;
-	if (WaitForSingleObject(service_process.hProcess, 0) == WAIT_TIMEOUT)
-		TerminateProcess(service_process.hProcess, 0);
-	CloseHandle(service_process.hProcess);
-	service_process = {};
+	if (service_process.hProcess) {
+		if (WaitForSingleObject(service_process.hProcess, 0) == WAIT_TIMEOUT)
+			TerminateProcess(service_process.hProcess, 0);
+		CloseHandle(service_process.hProcess);
+		service_process = {};
+	}
+	if (service_job) {
+		CloseHandle(service_job);
+		service_job = nullptr;
+	}
 }
 #else
 void start_service() {}
