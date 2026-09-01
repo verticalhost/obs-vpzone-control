@@ -11,9 +11,17 @@ Download `VPZONE-Control-Setup-…-Windows-x64.exe` from the GitHub release **As
 3. Removes only the obsolete VPZONE Control Custom Browser Dock created by versions 1.x.
 4. Opens OBS when installation finishes.
 
-The plugin starts its local service silently with OBS and stops it when OBS closes. In OBS, select **Docks → VPZONE Control**. No URL needs to be entered manually.
+The plugin starts its local service silently with OBS and stops it when OBS closes. The **Docks** menu lists three entries: **VPZONE Control**, **VPZONE Chat**, and **VPZONE Alerts**. Each one moves, resizes, and floats independently. No URL needs to be entered manually.
 
 Click **Connect with VPZONE** and approve the requested permissions. VPZONE opens its official sign-in page; the VPZONE password is never entered in VPZONE Control. After approval, VPZONE redirects to `http://localhost:4876/api/auth/callback`.
+
+## Streaming settings
+
+The **Streaming** section of the Control dock shows your VPZONE ingest host and a masked stream key. **Apply to OBS** writes them into OBS as a Custom streaming service.
+
+Nothing is written until you click. The plugin refuses to change anything while a stream is live, so an active broadcast is never interrupted. If OBS was pointed at another platform, applying replaces that configuration, so check **Settings → Stream** afterwards if you also stream elsewhere.
+
+The same action is available under **Tools → Configure VPZONE streaming**.
 
 ## OAuth tokens
 

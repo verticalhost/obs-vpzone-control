@@ -10,12 +10,22 @@
 #include "browser-panel.hpp"
 #include "plugin-support.h"
 
+#include <QFile>
 #include <QFileInfo>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+#include <QPointer>
 #include <QTimer>
+#include <QUrl>
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include <array>
+#include <string>
 #include <vector>
 
 #ifdef _WIN32
@@ -26,12 +36,26 @@ OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 
 namespace {
-constexpr auto DockId = "vpzone-control";
-constexpr auto DockTitle = "VPZONE Control";
-constexpr auto DockUrl = "http://127.0.0.1:4876";
+struct DockSpec {
+	const char *id;
+	const char *title;
+	const char *route;
+};
 
-QWidget *dock_widget = nullptr;
+/* The control dock keeps its 2.0.0 identifier so upgrading users keep their layout. */
+constexpr std::array<DockSpec, 3> Docks{{
+	{"vpzone-control", "VPZONE Control", "/?dock=control"},
+	{"vpzone-chat", "VPZONE Chat", "/?dock=chat"},
+	{"vpzone-alerts", "VPZONE Alerts", "/?dock=alerts"},
+}};
+
+constexpr auto ServiceOrigin = "http://127.0.0.1:4876";
+constexpr auto ApplyCommand = "vpzone:apply-stream";
+
+std::vector<QWidget *> dock_widgets;
+QPointer<QCefWidget> control_browser;
 QCef *cef = nullptr;
+QNetworkAccessManager *network = nullptr;
 
 #ifdef _WIN32
 PROCESS_INFORMATION service_process{};
@@ -79,63 +103,188 @@ void start_service() {}
 void stop_service() {}
 #endif
 
-void create_dock()
+/* The service writes a fresh token every time it starts, so it is always read on demand. */
+QString runtime_token()
 {
-	if (dock_widget)
+	QString runtime_path = qEnvironmentVariable("VPZONE_RUNTIME_FILE");
+	if (runtime_path.isEmpty()) {
+		const QString app_data = qEnvironmentVariable("APPDATA");
+		if (app_data.isEmpty())
+			return {};
+		runtime_path = app_data + QStringLiteral("/VPZONE Control/runtime.json");
+	}
+
+	QFile file(runtime_path);
+	if (!file.open(QIODevice::ReadOnly))
+		return {};
+	return QJsonDocument::fromJson(file.readAll()).object().value("localToken").toString();
+}
+
+void report(const char *status, const QString &code)
+{
+	if (!control_browser)
 		return;
-	obs_log(LOG_INFO, "Creating native VPZONE Control dock");
+
+	const QJsonObject detail{{"status", QString::fromUtf8(status)}, {"code", code}};
+	const QString payload = QString::fromUtf8(QJsonDocument(detail).toJson(QJsonDocument::Compact));
+	control_browser->executeJavaScript(
+		QStringLiteral("window.dispatchEvent(new CustomEvent('vpzone-stream-result',{detail:%1}))")
+			.arg(payload)
+			.toStdString());
+}
+
+/* A fresh rtmp_custom service is created rather than patching the current one: writing
+ * server and key into an rtmp_common preset such as Twitch does not yield a custom ingest. */
+void apply_stream_settings(const QString &ingest_url, const QString &stream_key)
+{
+	if (obs_frontend_streaming_active()) {
+		report("error", QStringLiteral("streaming_active"));
+		return;
+	}
+
+	obs_data_t *settings = obs_data_create();
+	obs_data_set_string(settings, "server", ingest_url.toUtf8().constData());
+	obs_data_set_string(settings, "key", stream_key.toUtf8().constData());
+
+	obs_service_t *service = obs_service_create("rtmp_custom", "VPZONE", settings, nullptr);
+	obs_data_release(settings);
+	if (!service) {
+		obs_log(LOG_ERROR, "Unable to create the VPZONE streaming service");
+		report("error", QStringLiteral("service_create_failed"));
+		return;
+	}
+
+	obs_frontend_set_streaming_service(service);
+	obs_frontend_save_streaming_service();
+	obs_service_release(service);
+
+	/* The stream key is never logged. */
+	obs_log(LOG_INFO, "Streaming service configured for VPZONE (%s)", qUtf8Printable(QUrl(ingest_url).host()));
+	report("applied", QString());
+}
+
+void fetch_and_apply()
+{
+	if (obs_frontend_streaming_active()) {
+		report("error", QStringLiteral("streaming_active"));
+		return;
+	}
+
+	const QString token = runtime_token();
+	if (token.isEmpty()) {
+		obs_log(LOG_ERROR, "VPZONE service runtime token is unavailable");
+		report("error", QStringLiteral("service_unavailable"));
+		return;
+	}
+
+	QNetworkRequest request{QUrl(QString::fromUtf8(ServiceOrigin) + QStringLiteral("/api/stream-key"))};
+	request.setRawHeader("X-VPZONE-Local", token.toUtf8());
+
+	QNetworkReply *reply = network->get(request);
+	QObject::connect(reply, &QNetworkReply::finished, reply, [reply]() {
+		reply->deleteLater();
+		const QJsonObject body = QJsonDocument::fromJson(reply->readAll()).object();
+
+		if (reply->error() != QNetworkReply::NoError) {
+			const QString code = body.value("code").toString();
+			obs_log(LOG_ERROR, "VPZONE stream key request failed: %s",
+				qUtf8Printable(code.isEmpty() ? reply->errorString() : code));
+			report("error", code.isEmpty() ? QStringLiteral("request_failed") : code);
+			return;
+		}
+
+		const QString ingest_url = body.value("ingest_url").toString();
+		const QString stream_key = body.value("stream_key").toString();
+		if (ingest_url.isEmpty() || stream_key.isEmpty()) {
+			report("error", QStringLiteral("stream_key_unavailable"));
+			return;
+		}
+		apply_stream_settings(ingest_url, stream_key);
+	});
+}
+
+void handle_dock_title(const QString &title)
+{
+	if (title == QLatin1String(ApplyCommand))
+		fetch_and_apply();
+}
+
+void create_docks()
+{
+	if (!dock_widgets.empty())
+		return;
+	obs_log(LOG_INFO, "Creating native VPZONE docks");
 
 	start_service();
-	dock_widget = new QWidget();
-	dock_widget->setObjectName(QStringLiteral("VPZONEControlDock"));
-	auto *layout = new QVBoxLayout(dock_widget);
-	layout->setContentsMargins(0, 0, 0, 0);
-
 	cef = obs_browser_init_panel();
-	if (!cef || !cef->wait_for_browser_init()) {
-		auto *error = new QLabel(QStringLiteral("OBS Browser is required for VPZONE Control."), dock_widget);
-		error->setAlignment(Qt::AlignCenter);
-		layout->addWidget(error);
-	} else {
-		auto *browser = cef->create_widget(dock_widget, DockUrl, nullptr);
+	const bool browser_ready = cef && cef->wait_for_browser_init();
+	if (!browser_ready)
+		obs_log(LOG_ERROR, "OBS Browser is unavailable; VPZONE docks will show a notice");
+
+	for (const DockSpec &spec : Docks) {
+		auto *widget = new QWidget();
+		widget->setObjectName(QString::fromUtf8(spec.id));
+		auto *layout = new QVBoxLayout(widget);
+		layout->setContentsMargins(0, 0, 0, 0);
+
+		QCefWidget *browser = browser_ready ? cef->create_widget(widget, std::string(ServiceOrigin) + spec.route,
+									nullptr)
+						    : nullptr;
 		if (browser) {
 			browser->allowAllPopups(true);
 			layout->addWidget(browser);
+			QObject::connect(browser, &QCefWidget::titleChanged, widget, handle_dock_title);
+			if (QLatin1String(spec.id) == QLatin1String("vpzone-control"))
+				control_browser = browser;
 		} else {
-			layout->addWidget(new QLabel(QStringLiteral("Unable to initialize VPZONE Control."), dock_widget));
+			auto *notice =
+				new QLabel(QStringLiteral("OBS Browser is required for VPZONE Control."), widget);
+			notice->setAlignment(Qt::AlignCenter);
+			layout->addWidget(notice);
 		}
-	}
 
-	if (!obs_frontend_add_dock_by_id(DockId, DockTitle, dock_widget)) {
-		obs_log(LOG_ERROR, "Unable to register the VPZONE Control dock");
-		delete dock_widget;
-		dock_widget = nullptr;
+		if (!obs_frontend_add_dock_by_id(spec.id, spec.title, widget)) {
+			obs_log(LOG_ERROR, "Unable to register the %s dock", spec.id);
+			delete widget;
+			continue;
+		}
+		dock_widgets.push_back(widget);
 	}
 }
 
 void frontend_event(enum obs_frontend_event event, void *)
 {
 	if (event == OBS_FRONTEND_EVENT_FINISHED_LOADING)
-		create_dock();
+		create_docks();
+}
+
+/* Fallback path for builds where the dock title bridge does not reach the plugin. */
+void tools_menu_clicked(void *)
+{
+	fetch_and_apply();
 }
 } // namespace
 
 bool obs_module_load(void)
 {
+	network = new QNetworkAccessManager();
 	obs_frontend_add_event_callback(frontend_event, nullptr);
+	obs_frontend_add_tools_menu_item("Configure VPZONE streaming", tools_menu_clicked, nullptr);
 	obs_log(LOG_INFO, "VPZONE Control native plugin loaded (version %s)", PLUGIN_VERSION);
 	auto *main_window = static_cast<QWidget *>(obs_frontend_get_main_window());
-	QTimer::singleShot(1000, main_window, [] { create_dock(); });
+	QTimer::singleShot(1000, main_window, [] { create_docks(); });
 	return true;
 }
 
 void obs_module_unload(void)
 {
 	obs_frontend_remove_event_callback(frontend_event, nullptr);
-	if (dock_widget) {
-		obs_frontend_remove_dock(DockId);
-		dock_widget = nullptr;
-	}
+	for (const DockSpec &spec : Docks)
+		obs_frontend_remove_dock(spec.id);
+	dock_widgets.clear();
+	control_browser = nullptr;
 	stop_service();
+	delete network;
+	network = nullptr;
 	obs_log(LOG_INFO, "VPZONE Control native plugin unloaded");
 }
