@@ -18,10 +18,7 @@ target_link_libraries(
   PRIVATE OBS::libobs OBS::obs-frontend-api Qt6::Core Qt6::Widgets Qt6::Network
 )
 
-target_sources(
-  ${CMAKE_PROJECT_NAME}
-  PRIVATE src/plugin-main.cpp src/browser-panel.hpp
-)
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-main.cpp src/browser-panel.hpp)
 
 target_compile_features(${CMAKE_PROJECT_NAME} PRIVATE cxx_std_20)
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES AUTOMOC ON)
@@ -30,7 +27,7 @@ if(WIN32)
   set(VPZONE_SERVICE "${CMAKE_CURRENT_BINARY_DIR}/VPZONE-Control.exe")
   file(
     DOWNLOAD
-    "https://github.com/verticalhost/obs-vpzone-control/releases/download/service-v2.0.0-beta1/VPZONE-Control.exe"
+      "https://github.com/verticalhost/obs-vpzone-control/releases/download/service-v2.0.0-beta1/VPZONE-Control.exe"
     "${VPZONE_SERVICE}"
     EXPECTED_HASH SHA256=ea1f91f55ff03bdee13cbf9b9b3529627ba76a0800d1cc52af795effdb0d2049
     TLS_VERIFY ON

@@ -81,7 +81,7 @@ void start_service()
 	startup.cb = sizeof(startup);
 	const std::wstring directory = QFileInfo(executable).absolutePath().toStdWString();
 	if (!CreateProcessW(nullptr, mutable_command.data(), nullptr, nullptr, FALSE, CREATE_NO_WINDOW, nullptr,
-			   directory.c_str(), &startup, &service_process)) {
+			    directory.c_str(), &startup, &service_process)) {
 		obs_log(LOG_ERROR, "Unable to start VPZONE service (Windows error %lu)", GetLastError());
 		return;
 	}
@@ -227,9 +227,9 @@ void create_docks()
 		auto *layout = new QVBoxLayout(widget);
 		layout->setContentsMargins(0, 0, 0, 0);
 
-		QCefWidget *browser = browser_ready ? cef->create_widget(widget, std::string(ServiceOrigin) + spec.route,
-									nullptr)
-						    : nullptr;
+		QCefWidget *browser =
+			browser_ready ? cef->create_widget(widget, std::string(ServiceOrigin) + spec.route, nullptr)
+				      : nullptr;
 		if (browser) {
 			browser->allowAllPopups(true);
 			layout->addWidget(browser);
