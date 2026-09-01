@@ -1,6 +1,7 @@
 import express from 'express'
 import fs from 'node:fs/promises'
 import { mkdirSync, writeFileSync } from 'node:fs'
+import net from 'node:net'
 import path from 'node:path'
 import crypto from 'node:crypto'
 import { getAsset, isSea } from 'node:sea'
@@ -179,5 +180,32 @@ if (packaged) {
   app.use(express.static(path.join(root, 'dist')))
   app.get('/{*path}', (_req, res) => res.sendFile(path.join(root, 'dist', 'index.html')))
 }
-writeRuntime()
-app.listen(port, '127.0.0.1', () => console.log(`VPZONE Control: http://127.0.0.1:${port}`))
+/* Windows lets a second bind on the same port appear to succeed, firing the listen
+ * callback before EADDRINUSE surfaces. A losing instance would then overwrite the token
+ * file and leave it describing a service that is about to die, so the port is probed
+ * first and a duplicate exits before touching anything. */
+function portIsServed() {
+  return new Promise(resolve => {
+    const socket = net.connect({ host: '127.0.0.1', port })
+    socket.setTimeout(700)
+    const settle = value => { socket.destroy(); resolve(value) }
+    socket.on('connect', () => settle(true))
+    socket.on('timeout', () => settle(false))
+    socket.on('error', () => settle(false))
+  })
+}
+
+portIsServed().then(taken => {
+  if (taken) {
+    console.error(`VPZONE Control: port ${port} is already served; leaving the running instance alone`)
+    process.exit(0)
+  }
+  const server = app.listen(port, '127.0.0.1', () => {
+    writeRuntime()
+    console.log(`VPZONE Control: http://127.0.0.1:${port}`)
+  })
+  server.on('error', error => {
+    console.error(String(error))
+    process.exit(1)
+  })
+})

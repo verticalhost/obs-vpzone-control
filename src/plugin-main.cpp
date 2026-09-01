@@ -56,6 +56,7 @@ std::vector<QWidget *> dock_widgets;
 QPointer<QCefWidget> control_browser;
 QCef *cef = nullptr;
 QNetworkAccessManager *network = nullptr;
+bool docks_requested = false;
 
 #ifdef _WIN32
 PROCESS_INFORMATION service_process{};
@@ -211,8 +212,12 @@ void handle_dock_title(const QString &title)
 
 void create_docks()
 {
-	if (!dock_widgets.empty())
+	/* Guarding on dock_widgets alone is not enough: the startup timer and the frontend
+	 * event can both arrive while the first call is still blocked waiting for the
+	 * browser, which would start the service twice. */
+	if (docks_requested)
 		return;
+	docks_requested = true;
 	obs_log(LOG_INFO, "Creating native VPZONE docks");
 
 	start_service();
@@ -283,6 +288,7 @@ void obs_module_unload(void)
 		obs_frontend_remove_dock(spec.id);
 	dock_widgets.clear();
 	control_browser = nullptr;
+	docks_requested = false;
 	stop_service();
 	delete network;
 	network = nullptr;
