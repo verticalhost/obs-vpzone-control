@@ -7,3 +7,4 @@ export type ChatEvent = {
 export type Settings = { slug: string; clientId: string; authenticated: boolean; profile: { username: string; display_name?: string | null; avatar_url?: string | null } | null }
 export type Category = { name: string; cover_url?: string | null; live_count?: number }
 export type Channel = { slug: string; title?: string; category?: string; is_live?: boolean; viewer_count?: number; owner?: { username: string; display_name?: string | null; avatar_url?: string | null; is_verified?: boolean } }
+export type StreamStatus = { available: boolean; reauth_required?: boolean; protocol?: string; ingest_host?: string; key_masked?: string; code?: string; error?: string }

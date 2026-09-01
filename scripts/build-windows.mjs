@@ -54,12 +54,13 @@ execFileSync(process.execPath, [postject, executable, 'NODE_SEA_BLOB', blob, '--
 await fs.writeFile(path.join(output, 'README.txt'), [
   'VPZONE Control for OBS',
   '',
-  '1. Run VPZONE-Control.exe and leave its window open.',
-  '2. In OBS, open Docks > Custom Browser Docks.',
-  '3. Use http://127.0.0.1:4876',
-  '4. Alerts overlay: http://127.0.0.1:4876/?overlay=alerts',
+  'This executable is the background service used by the VPZONE Control OBS plugin.',
+  'The plugin starts and stops it with OBS; run it by hand only for troubleshooting.',
   '',
-  'OAuth data is stored in %APPDATA%\\VPZONE Control.',
+  'The plugin registers three docks in OBS: VPZONE Control, VPZONE Chat, VPZONE Alerts.',
+  'Alerts overlay browser source: http://127.0.0.1:4876/?overlay=alerts',
+  '',
+  'OAuth data is stored in %APPDATA%\\VPZONE Control. Treat that folder as private.',
 ].join('\r\n'))
 
 execFileSync('tar.exe', ['-a', '-c', '-f', archive, '.'], { cwd: output, stdio: 'inherit' })

@@ -13,7 +13,7 @@ Create an OAuth application in the VPZONE developer portal with these settings:
 - Client type: public application without a client secret.
 - Flow: Authorization Code with PKCE S256.
 - Exact redirect URL: `http://localhost:4876/api/auth/callback`.
-- Scopes: `profile:read channel:write chat:read chat:write`.
+- Scopes: `profile:read channel:write chat:read chat:write stream:read`.
 
 Copy only the public **Client ID**. To use another Client ID without modifying source code, set `VPZONE_CLIENT_ID` before starting the application:
 
@@ -35,3 +35,11 @@ If the `PORT` environment variable changes the local port, the redirect URL regi
 5. Refresh-token rotation occurs automatically when needed.
 
 Tokens are stored in `data/config.json` for source builds and `%APPDATA%\VPZONE Control` for packaged builds. Both locations are excluded from Git and must remain private.
+
+## Stream key access
+
+The `stream:read` scope is what lets the dock configure the OBS streaming settings. It was added in 2.1.0, so accounts that signed in with an earlier version must sign in again before **Apply to OBS** works. The dock says so when that is the case.
+
+Alongside the tokens, the service writes `runtime.json`, holding a random token regenerated on every start. Only the native plugin reads that file, and it authorises the single local route that returns the stream key. The key never reaches the dock web interface, which sees only a masked value and the ingest host.
+
+`VPZONE_API` points the service at a different API base. It exists for testing against a staging deployment and should be left unset in production.

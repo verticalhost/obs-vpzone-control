@@ -1,5 +1,5 @@
 #define AppName "VPZONE Control for OBS"
-#define AppVersion "2.0.0"
+#define AppVersion "2.1.0"
 #define AppPublisher "Solutions Techno-Redac Inc."
 #define AppURL "https://github.com/verticalhost/obs-vpzone-control"
 
