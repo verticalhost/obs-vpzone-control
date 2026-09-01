@@ -28,7 +28,7 @@ if(WIN32)
   file(
     DOWNLOAD
       "https://github.com/verticalhost/obs-vpzone-control/releases/download/service-v2.0.0-beta1/VPZONE-Control.exe"
-    "${VPZONE_SERVICE}"
+      "${VPZONE_SERVICE}"
     EXPECTED_HASH SHA256=ea1f91f55ff03bdee13cbf9b9b3529627ba76a0800d1cc52af795effdb0d2049
     TLS_VERIFY ON
   )
